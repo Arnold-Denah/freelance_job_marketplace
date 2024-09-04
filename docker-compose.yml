@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+
+  web:
+    build: ./freelance
+    ports:
+      - 9000:9000
+    volumes:
+      - ./freelance:/app
+    depends_on:
+      - db
+      - phpmyadmin
+    environment:
+      CLEARDB_DATABASE_URL: 'mysql://freelance:freelance@db:3306/freelance'
+
+  db:
+    image: mysql:5.7
+    container_name: db
+    environment:
+      MYSQL_DATABASE: 'freelance'
+      MYSQL_USER: 'freelance'
+      MYSQL_PASSWORD: 'freelance'
+      MYSQL_ROOT_PASSWORD: 'freelance'
+    ports:
+      - "6033:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    depends_on:
+      - db
+    links:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+      MYSQL_ROOT_PASSWORD: 'freelance'
+      MYSQL_USER: 'freelance'
+      MYSQL_PASSWORD: 'freelance'
+    restart: always
+    ports:
+      - 8081:80
+    expose:
+      - 8081
+
+volumes:
+  dbdata:
